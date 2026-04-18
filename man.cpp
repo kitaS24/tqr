@@ -38,7 +38,7 @@ void man() {
     TableDivider(32);
     std::cout << "           HELP/MAN\n";
     TableDivider(32);
-    std::cout << "Usage: tqr [OPTION...] [STRING/STRINGS]\n\n";
+    std::cout << "Usage: tqr [OPTION...] [STRING...]\n\n";
 
     ManDef(); std::cout << "    -d2, --d2           display in half blocks (default). 2 pixels/char\n";
     ManGray();std::cout << "    -d4, --d4           display in quad blocks. 4 pixels/char\n";
