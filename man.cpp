@@ -15,7 +15,7 @@ std::string ColorCodeMan(unsigned char r, unsigned char g, unsigned char b) {
 }
 
 void ManGray() {
-    std::cout <<ColorCodeMan(255,200,200);
+    std::cout <<ColorCodeMan(220,210,210);
 }
 void ManDef() {
     std::cout <<ColorCodeMan(200,255,200);
@@ -25,6 +25,9 @@ void ManW() {
 }
 void ManLink() {
     std::cout <<ColorCodeMan(128,128,255);
+}
+void ManHint() {
+    std::cout <<ColorCodeMan(255,255,64);
 }
 
 void TableDivider(int size) {
@@ -40,16 +43,20 @@ void man() {
     TableDivider(32);
     std::cout << "Usage: tqr [OPTION...] [STRING...]\n\n";
 
-    ManDef(); std::cout << "    -d2, --d2           display in half blocks (default). 2 pixels/char\n";
+    ManDef(); std::cout << "    -d2, --d2           display in half blocks. 2 pixels/char   (default).\n";
     ManGray();std::cout << "    -d4, --d4           display in quad blocks. 4 pixels/char\n";
     ManGray();std::cout << "    -d8, --d8           display with braille. 8 pixels/char\n";
-    ManW();   std::cout << "-d4 and -d8 produce more compact QR codes.\n";
-    ManW();   std::cout << "Readers might have a problem with reading them due to a terminal font\n";
+    ManHint();std::cout << "-d4 and -d8 produce more compact QR codes.\n";
+    ManHint();std::cout << "Readers might have a problem with reading them due to a terminal font\n";
     std::cout << "\n";
     ManGray();std::cout << "    --err-low           QR error compression: LOW\n";
-    ManDef(); std::cout << "    --err-medium        QR error compression: MEDIUM (default)\n";
+    ManDef(); std::cout << "    --err-medium        QR error compression: MEDIUM            (default)\n";
     ManGray();std::cout << "    --err-quartile      QR error compression: QUARTILE\n";
     ManGray();std::cout << "    --err-high          QR error compression: HIGH\n";
+    std::cout << "\n";
+    ManGray();std::cout << "    -rep-blank          Replaces blank chars with ░. For use with proportional fonts\n";
+    ManGray();std::cout << "    --replace-blank\n";
+    ManHint();std::cout << "Only works with -d2.\n";
     std::cout << "\n";
     ManGray();std::cout << "    -h, --help          give this help list\n";
     ManGray();std::cout << "    -man, --man         give this help list\n";

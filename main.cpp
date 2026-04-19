@@ -19,6 +19,7 @@ int main(int argc, char* argv[]) {
 
     int DispType = 0;
     int EcType = 1;
+    bool RepBlank = false;
 
     std::vector<std::string> Strs = {};
 
@@ -57,6 +58,16 @@ int main(int argc, char* argv[]) {
             EcType=QrEc_HIGH;
             IsFlag = true;
         }
+
+        if (StrArg == "-rep-blank" || StrArg == "--rep-blank") {
+            RepBlank = true;
+            IsFlag = true;
+        }
+        if (StrArg == "-replace-blank" || StrArg == "--replace-blank") {
+            RepBlank = true;
+            IsFlag = true;
+        }
+
         if (StrArg == "-h" || StrArg == "--h") {
             man();
             return 0;
@@ -80,7 +91,7 @@ int main(int argc, char* argv[]) {
     for (int i=0;i<Strs.size();i++) {
         std::cout <<ColorCode(128,100,100)<<Strs[i]<<"\n";
         std::cout << ColorCode(255,255,255);
-        qrg.OutputQrToTerminal(Strs[i],DispType,EcType);
+        qrg.OutputQrToTerminal(Strs[i],DispType,EcType,RepBlank);
         std::cout << "\n\n\n\n";
     }
 }

@@ -148,7 +148,7 @@ void OutputB(std::vector<std::vector<bool>> &out) {
     }
 }
 
-void OutputA(std::vector<std::vector<bool>> &out) {
+void OutputA(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
     if (out.size() == 0) {return;}
 
     for (int i=0;i<out.size();i++) {
@@ -159,6 +159,9 @@ void OutputA(std::vector<std::vector<bool>> &out) {
 
     const char* quad[4] = {
         " ",  "▀","▄","█"
+    };
+    const char* quadRep[4] = {
+        "░",  "▀","▄","█"
     };
 
     uint16_t size = out.size();
@@ -179,7 +182,11 @@ void OutputA(std::vector<std::vector<bool>> &out) {
                 }
             }
 
-            std::cout << quad[Map2Assemble(Px)];
+            if (ReplaceBlank) {
+                std::cout << quadRep[Map2Assemble(Px)];
+            }else {
+                std::cout << quad[Map2Assemble(Px)];
+            }
         }
         std::cout << "\n";
     }
@@ -187,7 +194,7 @@ void OutputA(std::vector<std::vector<bool>> &out) {
 
 public:
 
-    void OutputQrToTerminal(std::string text, int type,int ErrCorrection) {
+    void OutputQrToTerminal(std::string text, int type,int ErrCorrection,bool ReplaceBlank) {
 
         QrCode::Ecc ec;
 
@@ -221,7 +228,7 @@ public:
                 OutputBraille(img);
                 break;
             case QrDisplay_Half:
-                OutputA(img);
+                OutputA(img,ReplaceBlank);
                 break;
             case QrDisplay_Quad:
                 OutputB(img);
