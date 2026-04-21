@@ -6,6 +6,7 @@
 #define QrDisplay_Half 0
 #define QrDisplay_Quad 1
 #define QrDisplay_Braille 2
+//#define QrDisplay_Ascii 3
 
 #define QrEc_LOW 0
 #define QrEc_MEDIUM 1
@@ -16,9 +17,18 @@
 #include "thirdparty/qrcodegen.cpp"
 using namespace qrcodegen;
 
-class App {
+///
+/// class tqrCli:
+///
+/// tqrCli class is a class for converting text to QR codes.
+/// this class relies on QR-Code-generator library by nayuki.
+///
+
+
+class tqrCli {
 private:
 
+    //this function generates an ANSI color code for terminal
 std::string CodeGen(unsigned char FG,unsigned char BG){
 
     if(FG >7){
@@ -38,6 +48,7 @@ std::string CodeGen(unsigned char FG,unsigned char BG){
 }
 
 
+    // function converts an integer to utf8 char. Used for braille output
 std::string to_utf8(char32_t cp) {
     std::string result;
 
@@ -60,12 +71,14 @@ std::string to_utf8(char32_t cp) {
     return result;
 }
 
+    //function maps a pixel array to braille char offset
 uint8_t MapToBraille(bool Px[8]) {
     return (Px[0]<<0)+(Px[1]<<3)
     +(Px[2]<<1)+(Px[3]<<4)
     +(Px[4]<<2)+(Px[5]<<5)
     +(Px[6]<<6)+(Px[7]<<7);
 }
+    //functions map array to char offset
 uint8_t Map4Assemble(bool Px[4]) {
     return (Px[0]<<0)+(Px[1]<<1)
     +(Px[2]<<2)+(Px[3]<<3)
@@ -76,7 +89,11 @@ uint8_t Map2Assemble(bool Px[2]) {
     ;
 }
 
+    //Output functions:
+
+    //outputs a buffer in terminal using braille. Expects a square buffer
 void OutputBraille(std::vector<std::vector<bool>> &out) {
+    //check if out isn't empty && buffer is a square
     if (out.size() == 0) {return;}
 
     for (int i=0;i<out.size();i++) {
@@ -87,14 +104,17 @@ void OutputBraille(std::vector<std::vector<bool>> &out) {
 
     uint16_t size = out.size();
 
-    uint8_t x=ceil(float(size)/2.0f);
-    uint8_t y=ceil(float(size)/4.0f);
+    //calculating chars needed to build the buffer. Each braille char can show 2x4 area
+    uint8_t x=ceil(float(size)/2.0f);//find width, divide by chars resolution width
+    uint8_t y=ceil(float(size)/4.0f);//find height, divide by chars resolution height
 
     bool Px[8] = {};
 
+    //iterating over the buffer to display the content
     for (int j=0;j<y;j++) {
         for (int i=0;i<x;i++) {
 
+            //fill array for mapping
             for (int k=0;k<8;k++) {
                 if (j*4+(int(k/2)) >= size ||i*2+(k&1) >=size) {
                     Px[k] = false;
@@ -108,7 +128,11 @@ void OutputBraille(std::vector<std::vector<bool>> &out) {
         std::cout << "\n";
     }
 }
-void OutputB(std::vector<std::vector<bool>> &out) {
+
+
+    //outputs a buffer in terminal using quad chars+space. Expects a square buffer
+void OutputQuad(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
+    //check if out isn't empty && buffer is a square
     if (out.size() == 0) {return;}
 
     for (int i=0;i<out.size();i++) {
@@ -117,23 +141,31 @@ void OutputB(std::vector<std::vector<bool>> &out) {
         }
     }
 
+    // chars in the right order
     const char* quad[16] = {
         " ",  "▘", "▝", "▀",
         "▖", "▌", "▞", "▛",
         "▗", "▚", "▐", "▜",
         "▄", "▙", "▟", "█"
     };
+    const char* quadRep[16] = {
+        "░",  "▘", "▝", "▀",
+        "▖", "▌", "▞", "▛",
+        "▗", "▚", "▐", "▜",
+        "▄", "▙", "▟", "█"
+    };
 
     uint16_t size = out.size();
-
-    uint8_t x=ceil(float(size)/2.0f);
-    uint8_t y=ceil(float(size)/2.0f);
+    //calculating chars needed to build the buffer. Each char can show area 2x2
+    uint8_t x=ceil(float(size)/2.0f);//find width, divide by chars resolution width
+    uint8_t y=ceil(float(size)/2.0f);//find height, divide by chars resolution height
 
     bool Px[4] = {};
 
     for (int j=0;j<y;j++) {
         for (int i=0;i<x;i++) {
 
+            //fill array for mapping. This can be done another way.
             for (int k=0;k<4;k++) {
                 if (j*2+(int(k/2)) >= size ||i*2+(k&1) >=size) {
                     Px[k] = false;
@@ -142,13 +174,20 @@ void OutputB(std::vector<std::vector<bool>> &out) {
                 }
             }
 
-            std::cout << quad[Map4Assemble(Px)];
+            //pixel output
+            if (ReplaceBlank) {
+                std::cout << quadRep[Map4Assemble(Px)];
+            }else {
+                std::cout << quad[Map4Assemble(Px)];
+            }
         }
         std::cout << "\n";
     }
 }
-
-void OutputA(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
+    //outputs a buffer in terminal using half blocks. Expects a square buffer
+    //Also has an option for replacing space with a 25% filled block
+void OutputHalf(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
+    //check if out isn't empty && buffer is a square
     if (out.size() == 0) {return;}
 
     for (int i=0;i<out.size();i++) {
@@ -157,23 +196,26 @@ void OutputA(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
         }
     }
 
-    const char* quad[4] = {
+    //chars for displaying.
+    const char* half[4] = {
         " ",  "▀","▄","█"
     };
-    const char* quadRep[4] = {
+    //same, but with space being replaced to work with proportional fonts
+    const char* halfRep[4] = {
         "░",  "▀","▄","█"
     };
 
     uint16_t size = out.size();
-
-    uint8_t x=ceil(float(size)/1.0f);
-    uint8_t y=ceil(float(size)/2.0f);
+    //calculating chars needed to build the buffer. Each char can show area 1x2
+    uint8_t x=ceil(float(size)/1.0f);//find width, divide by chars resolution width
+    uint8_t y=ceil(float(size)/2.0f);//find height, divide by chars resolution height
 
     bool Px[2] = {};
 
     for (int j=0;j<y;j++) {
         for (int i=0;i<x;i++) {
 
+            //fill array for mapping. This can be done another way.
             for (int k=0;k<2;k++) {
                 if (j*2+k >= size ||i >=size) {
                     Px[k] = false;
@@ -182,10 +224,11 @@ void OutputA(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
                 }
             }
 
+            //depending on the option that was selected by user, use array with a space, or with a 25% filled block
             if (ReplaceBlank) {
-                std::cout << quadRep[Map2Assemble(Px)];
+                std::cout << halfRep[Map2Assemble(Px)];
             }else {
-                std::cout << quad[Map2Assemble(Px)];
+                std::cout << half[Map2Assemble(Px)];
             }
         }
         std::cout << "\n";
@@ -194,27 +237,41 @@ void OutputA(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
 
 public:
 
+    /// this function will be executed by user.
+    /// Function generates a QR code with the QR-Code-generator library by nayuki.
+    /// function outputs QR code to the terminal
+    /// input:
+    /// std::string text            - text to be encoded
+    /// int         type            - display type
+    /// int         ErrCorrection   - error correction
+    /// bool        ReplaceBlank    - replaces spaces with ░ for use with proportional fonts.
+    ///
+
+
     void OutputQrToTerminal(std::string text, int type,int ErrCorrection,bool ReplaceBlank) {
 
         QrCode::Ecc ec;
 
+        //sets an error correction. Converts int to the value that library expects
         switch (ErrCorrection) {
-            case 0:
+            case QrEc_LOW:
                 ec=QrCode::Ecc::LOW;
                 break;
-            case 1:
+            case QrEc_MEDIUM:
                 ec=QrCode::Ecc::MEDIUM;
                 break;
-            case 2:
+            case QrEc_QUARTILE:
                 ec=QrCode::Ecc::QUARTILE;
                 break;
-            case 3:
+            case QrEc_HIGH:
                 ec=QrCode::Ecc::HIGH;
                 break;
         }
 
+        //generating qrcode
         QrCode qr0 = QrCode::encodeText(text.c_str(), ec);
 
+        //creating a buffer
         std::vector<std::vector<bool>> img;
         for (int y = 0; y < qr0.getSize(); y++) {
             img.push_back({});
@@ -223,16 +280,21 @@ public:
             }
         }
 
+        //printing
         switch (type) {
             case QrDisplay_Braille:
                 OutputBraille(img);
                 break;
             case QrDisplay_Half:
-                OutputA(img,ReplaceBlank);
+                OutputHalf(img,ReplaceBlank);
                 break;
             case QrDisplay_Quad:
-                OutputB(img);
+                OutputQuad(img,ReplaceBlank);
                 break;
+                /*
+            case QrDisplay_Ascii:
+                OutputC(img);
+                break;*/
         }
     }
 };

@@ -41,6 +41,11 @@ int main(int argc, char* argv[]) {
             DispType=QrDisplay_Braille;
             IsFlag = true;
         }
+        /*
+        if (StrArg == "-d0.5" || StrArg == "--d0.5") {
+            DispType=QrDisplay_Ascii;
+            IsFlag = true;
+        }*/
 
         if (StrArg == "-err-low" || StrArg == "--err-low") {
             EcType=QrEc_LOW;
@@ -87,7 +92,7 @@ int main(int argc, char* argv[]) {
     }
 
 
-    App qrg;
+    tqrCli qrg;
     for (int i=0;i<Strs.size();i++) {
         std::cout <<ColorCode(128,100,100)<<Strs[i]<<"\n";
         std::cout << ColorCode(255,255,255);
