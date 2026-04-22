@@ -93,6 +93,11 @@ uint8_t Map2Assemble(bool Px[2]) {
 
     //outputs a buffer in terminal using braille. Expects a square buffer
 void OutputBraille(std::vector<std::vector<bool>> &out) {
+
+    static int CharResX = 2;
+    static int CharResY = 4;
+
+
     //check if out isn't empty && buffer is a square
     if (out.size() == 0) {return;}
 
@@ -105,8 +110,8 @@ void OutputBraille(std::vector<std::vector<bool>> &out) {
     uint16_t size = out.size();
 
     //calculating chars needed to build the buffer. Each braille char can show 2x4 area
-    uint8_t x=ceil(float(size)/2.0f);//find width, divide by chars resolution width
-    uint8_t y=ceil(float(size)/4.0f);//find height, divide by chars resolution height
+    uint8_t x=ceil(float(size)/float(CharResX));//find width, divide by chars resolution width
+    uint8_t y=ceil(float(size)/float(CharResY));//find height, divide by chars resolution height
 
     bool Px[8] = {};
 
@@ -116,10 +121,10 @@ void OutputBraille(std::vector<std::vector<bool>> &out) {
 
             //fill array for mapping
             for (int k=0;k<8;k++) {
-                if (j*4+(int(k/2)) >= size ||i*2+(k&1) >=size) {
+                if (j*CharResY+(int(k/CharResX)) >= size ||i*CharResX+(k%CharResX) >=size) {
                     Px[k] = false;
                 }else {
-                    Px[k] = out[j*4+(int(k/2))][i*2+(k&1)];
+                    Px[k] = out[j*CharResY+(int(k/CharResX))][i*CharResX+(k%CharResX)];
                 }
             }
 
@@ -132,6 +137,10 @@ void OutputBraille(std::vector<std::vector<bool>> &out) {
 
     //outputs a buffer in terminal using quad chars+space. Expects a square buffer
 void OutputQuad(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
+
+    static int CharResX = 2;
+    static int CharResY = 2;
+
     //check if out isn't empty && buffer is a square
     if (out.size() == 0) {return;}
 
@@ -157,8 +166,8 @@ void OutputQuad(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
 
     uint16_t size = out.size();
     //calculating chars needed to build the buffer. Each char can show area 2x2
-    uint8_t x=ceil(float(size)/2.0f);//find width, divide by chars resolution width
-    uint8_t y=ceil(float(size)/2.0f);//find height, divide by chars resolution height
+    uint8_t x=ceil(float(size)/float(CharResX));//find width, divide by chars resolution width
+    uint8_t y=ceil(float(size)/float(CharResY));//find height, divide by chars resolution height
 
     bool Px[4] = {};
 
@@ -167,10 +176,10 @@ void OutputQuad(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
 
             //fill array for mapping. This can be done another way.
             for (int k=0;k<4;k++) {
-                if (j*2+(int(k/2)) >= size ||i*2+(k&1) >=size) {
+                if (j*CharResY+(int(k/CharResX)) >= size ||i*CharResX+(k%CharResX) >=size) {
                     Px[k] = false;
                 }else {
-                    Px[k] = out[j*2+(int(k/2))][i*2+(k&1)];
+                    Px[k] = out[j*CharResY+(int(k/CharResX))][i*CharResX+(k%CharResX)];
                 }
             }
 
@@ -187,6 +196,11 @@ void OutputQuad(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
     //outputs a buffer in terminal using half blocks. Expects a square buffer
     //Also has an option for replacing space with a 25% filled block
 void OutputHalf(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
+
+
+    static int CharResX = 1;
+    static int CharResY = 2;
+
     //check if out isn't empty && buffer is a square
     if (out.size() == 0) {return;}
 
@@ -207,8 +221,8 @@ void OutputHalf(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
 
     uint16_t size = out.size();
     //calculating chars needed to build the buffer. Each char can show area 1x2
-    uint8_t x=ceil(float(size)/1.0f);//find width, divide by chars resolution width
-    uint8_t y=ceil(float(size)/2.0f);//find height, divide by chars resolution height
+    uint8_t x=ceil(float(size)/float(CharResX));//find width, divide by chars resolution width
+    uint8_t y=ceil(float(size)/float(CharResY));//find height, divide by chars resolution height
 
     bool Px[2] = {};
 
@@ -217,10 +231,10 @@ void OutputHalf(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
 
             //fill array for mapping. This can be done another way.
             for (int k=0;k<2;k++) {
-                if (j*2+k >= size ||i >=size) {
+                if (j*CharResY+k >= size ||i >=size) {
                     Px[k] = false;
                 }else {
-                    Px[k] = out[j*2+k][i];
+                    Px[k] = out[j*CharResY+k][i];
                 }
             }
 
