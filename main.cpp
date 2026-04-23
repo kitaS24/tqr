@@ -17,9 +17,10 @@ std::string ColorCode(unsigned char r, unsigned char g, unsigned char b) {
 
 int main(int argc, char* argv[]) {
 
-    int DispType = 0;
-    int EcType = 1;
+    QrDisplay DispType = QrDisplay::Half;
+    QrEc EcType = QrEc::MEDIUM;
     bool RepBlank = false;
+    bool FlagAuto = false;
 
     std::vector<std::string> Strs = {};
 
@@ -30,15 +31,15 @@ int main(int argc, char* argv[]) {
         bool IsFlag = false;
 
         if (StrArg == "-d2" || StrArg == "--d2") {
-            DispType=QrDisplay_Half;
+            DispType=QrDisplay::Half;
             IsFlag = true;
         }
         if (StrArg == "-d4" || StrArg == "--d4") {
-            DispType=QrDisplay_Quad;
+            DispType=QrDisplay::Quad;
             IsFlag = true;
         }
         if (StrArg == "-d8" || StrArg == "--d8") {
-            DispType=QrDisplay_Braille;
+            DispType=QrDisplay::Braille;
             IsFlag = true;
         }
         /*
@@ -48,19 +49,19 @@ int main(int argc, char* argv[]) {
         }*/
 
         if (StrArg == "-err-low" || StrArg == "--err-low") {
-            EcType=QrEc_LOW;
+            EcType=QrEc::LOW;
             IsFlag = true;
         }
         if (StrArg == "-err-medium" || StrArg == "--err-medium") {
-            EcType=QrEc_MEDIUM;
+            EcType=QrEc::MEDIUM;
             IsFlag = true;
         }
         if (StrArg == "-err-quartile" || StrArg == "--err-quartile") {
-            EcType=QrEc_QUARTILE;
+            EcType=QrEc::QUARTILE;
             IsFlag = true;
         }
         if (StrArg == "-err-high" || StrArg == "--err-high") {
-            EcType=QrEc_HIGH;
+            EcType=QrEc::HIGH;
             IsFlag = true;
         }
 
@@ -70,6 +71,11 @@ int main(int argc, char* argv[]) {
         }
         if (StrArg == "-replace-blank" || StrArg == "--replace-blank") {
             RepBlank = true;
+            IsFlag = true;
+        }
+
+        if (StrArg == "-auto" || StrArg == "--auto") {
+            FlagAuto = true;
             IsFlag = true;
         }
 
@@ -96,7 +102,11 @@ int main(int argc, char* argv[]) {
     for (int i=0;i<Strs.size();i++) {
         std::cout <<ColorCode(128,100,100)<<Strs[i]<<"\n";
         std::cout << ColorCode(255,255,255);
-        qrg.OutputQrToTerminal(Strs[i],DispType,EcType,RepBlank);
+        if (FlagAuto) {
+            qrg.QrAuto(Strs[i],RepBlank);
+        }else {
+            qrg.OutputQrToTerminal(Strs[i],DispType,EcType,RepBlank);
+        }
         std::cout << "\n\n\n\n";
     }
 }

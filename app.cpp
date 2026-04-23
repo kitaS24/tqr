@@ -3,15 +3,20 @@
 //
 
 
-#define QrDisplay_Half 0
-#define QrDisplay_Quad 1
-#define QrDisplay_Braille 2
-//#define QrDisplay_Ascii 3
+enum class QrDisplay {
+    Half = 0,
+    Quad = 1,
+    Braille = 2,
 
-#define QrEc_LOW 0
-#define QrEc_MEDIUM 1
-#define QrEc_QUARTILE 2
-#define QrEc_HIGH 3
+};
+
+enum class QrEc {
+    LOW = 0,
+    MEDIUM = 1,
+    QUARTILE = 2,
+    HIGH = 3,
+
+};
 
 #include "thirdparty/qrcodegen.hpp"
 #include "thirdparty/qrcodegen.cpp"
@@ -151,13 +156,13 @@ void OutputQuad(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
     }
 
     // chars in the right order
-    const char* quad[16] = {
+    const std::string quad[16] = {
         " ",  "▘", "▝", "▀",
         "▖", "▌", "▞", "▛",
         "▗", "▚", "▐", "▜",
         "▄", "▙", "▟", "█"
     };
-    const char* quadRep[16] = {
+    const std::string quadRep[16] = {
         "░",  "▘", "▝", "▀",
         "▖", "▌", "▞", "▛",
         "▗", "▚", "▐", "▜",
@@ -211,11 +216,11 @@ void OutputHalf(std::vector<std::vector<bool>> &out,bool ReplaceBlank) {
     }
 
     //chars for displaying.
-    const char* half[4] = {
+    const std::string half[4] = {
         " ",  "▀","▄","█"
     };
     //same, but with space being replaced to work with proportional fonts
-    const char* halfRep[4] = {
+    const std::string halfRep[4] = {
         "░",  "▀","▄","█"
     };
 
@@ -262,22 +267,22 @@ public:
     ///
 
 
-    void OutputQrToTerminal(std::string text, int type,int ErrCorrection,bool ReplaceBlank) {
+    void OutputQrToTerminal(std::string text, QrDisplay type,QrEc ErrCorrection,bool ReplaceBlank) {
 
         QrCode::Ecc ec;
 
         //sets an error correction. Converts int to the value that library expects
         switch (ErrCorrection) {
-            case QrEc_LOW:
+            case QrEc::LOW:
                 ec=QrCode::Ecc::LOW;
                 break;
-            case QrEc_MEDIUM:
+            case QrEc::MEDIUM:
                 ec=QrCode::Ecc::MEDIUM;
                 break;
-            case QrEc_QUARTILE:
+            case QrEc::QUARTILE:
                 ec=QrCode::Ecc::QUARTILE;
                 break;
-            case QrEc_HIGH:
+            case QrEc::HIGH:
                 ec=QrCode::Ecc::HIGH;
                 break;
         }
@@ -296,13 +301,13 @@ public:
 
         //printing
         switch (type) {
-            case QrDisplay_Braille:
+            case QrDisplay::Braille:
                 OutputBraille(img);
                 break;
-            case QrDisplay_Half:
+            case QrDisplay::Half:
                 OutputHalf(img,ReplaceBlank);
                 break;
-            case QrDisplay_Quad:
+            case QrDisplay::Quad:
                 OutputQuad(img,ReplaceBlank);
                 break;
                 /*
@@ -310,5 +315,20 @@ public:
                 OutputC(img);
                 break;*/
         }
+    }
+
+    /// this function will be executed by user.
+    /// Function generates a QR code with the QR-Code-generator library by nayuki.
+    /// function outputs QR code to the terminal, Error correction and display type is pre-picked
+    /// input:
+    /// std::string text            - text to be encoded
+    ///(bool        ReplaceBlank)   - replaces blanks for use with proportional fonts. Optional
+    ///
+
+    void QrAuto(std::string text) {
+        OutputQrToTerminal(text,QrDisplay::Half,QrEc::MEDIUM,false);
+    }
+    void QrAuto(std::string text,bool ReplaceBlank) {
+        OutputQrToTerminal(text,QrDisplay::Half,QrEc::MEDIUM,ReplaceBlank);
     }
 };

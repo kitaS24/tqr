@@ -58,6 +58,8 @@ void man() {
     ManGray();std::cout << "    --replace-blank\n";
     ManHint();std::cout << "Only works with -d2.\n";
     std::cout << "\n";
+    ManGray();std::cout << "    -auto, --auto       Choose automatically\n";
+    std::cout << "\n";
     ManGray();std::cout << "    -h, --help          give this help list\n";
     ManGray();std::cout << "    -man, --man         give this help list\n";
     std::cout << "\n";
